@@ -1,2 +1,0 @@
-#include <poppler/OutputDev.h>
-

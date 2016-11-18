@@ -1,4 +1,5 @@
 enums = getEnums(tu)
+# Clark: The enumerated types. I'll have to stop here and inspect these.
 enums = enums[grep("poppler", sapply(enums, getFileName))]
 
 enums = enums[ !grepl("Activation", names(enums)) ]
