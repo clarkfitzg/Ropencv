@@ -1,3 +1,23 @@
+### Thu Nov 17 16:04:53 PST 2016
+
+Now I need to figure out what this translation unit can do.
+
+Everything in this `core.hpp` header file is in the namespace `cv`. I
+should be able to find things like all the `enum` objects from the top of
+the file.
+
+What's with all the `CV_EXPORTS` and `CV_EXPORTS_W` before the function
+definitions? These are macros. See note on line 363 in `cvdef.h` and ask
+Duncan.
+
+How the Python bindings are generated:
+http://docs.opencv.org/master/da/d49/tutorial_py_bindings_basics.html
+Should be very relevant. So it uses custom parsing in Python to parse the
+header files
+
+I'm observing that R's S4 OO system is closer to C++ than Python's. Since
+we can overload functions.
+
 ### Thu Nov 17 15:21:58 PST 2016
 
 Next error:
