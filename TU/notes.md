@@ -1,3 +1,109 @@
+### Thu Dec 22 09:12:28 PST 2016
+
+The issue appears to be in `cppClass.R`.
+
+Looking carefully at the stack trace now:
+
+```
+Enter a frame number, or 0 to exit
+
+1: getCppClasses(tu)
+2: lapply(ans, readCppClass)
+3: lapply(ans, readCppClass)
+4: FUN(X[[i]], ...)
+5: visitTU(cursor, visitor$update)
+6: do(tu)
+7: (function (cur, parent)
+{
+    k = cur$kind
+    if (k == CXCursor_CXXAccess
+8: new(RclassName, def = cur, name = id, params = list(), returnType =
+getResu
+9: getClass(Class, where = topenv(parent.frame()))
+```
+
+The error happens inside `genCppClassInfoCollector` as it is applied over
+the cursors. How does the `RclassName` get set to this? From the `classMap`
+variable.
+
+Inspecting `classMap` in frame 7 we see
+```
+Browse[3]> classMap
+                C++ClassMethod.CXCursor_CXXMethod
+                                               21
+         C++ClassConstructor.CXCursor_Constructor
+                                               24
+ C++ClassTemplateMethod.CXCursor_FunctionTemplate
+                                               30
+C++ConversionFunction.CXCursor_ConversionFunction
+                                               26
+```
+They all have this form of concatenated name, which appears to be intentional.
+
+
+
+### Wed Dec 21 16:30:25 PST 2016
+
+Now back to the other error. This appears to come from RCIndex.
+
+```
+Error in getClass(Class, where = topenv(parent.frame())) :
+ “C++ClassConstructor.CXCursor_Constructor” is not a defined class
+```
+So this class doesn't exist. But is the constructor the same as the class?
+
+Grep doesn't turn anything up in the directory.
+
+grep "C++ClassConstructor.CXCursor_Constructor" * -l
+
+
+### Wed Dec 21 15:12:21 PST 2016
+
+Previously I had made some local changes, now I'm syncing back up with
+Duncan's branch and getting started with this again.
+
+Working on `Ropencv/tu.R` and I run into this error. Which is the same that
+I had before.
+```
+> k = getCppClasses(tu)
+Error in asEnum(val, CXCursorKind, "CXCursorKind") : No matching value
+```
+
+First lets check what version of llvm the package thinks that I have.
+```
+
+library(RCIndex)
+
+vc = RCIndex:::libclangVersion_Install
+
+all(RCIndex:::clangVersionNum(vc) == c(3, 8))
+
+```
+Yes, it has the correct version.
+
+Interesting that new files are generated within the R directory of RCIndex
+when I install it. Haven't noticed that before when installing packages.
+
+Next step: see what possible values for `CXCursorKind` are.
+
+```
+
+length(CXCursorKind)
+# 171
+
+```
+
+Again fails on `CXCursorKind` 417, which is not in RCIndex. Lets try
+reinstalling from Duncan's master branch to make sure everything is
+configured as it should be.
+
+Reinstalled, looks like the same error. Now let's look in the library code
+and check if it's overriden somewhere. 
+- It's defined in `R/a_enumDefs_3.8.R`.
+- It's defined again in `R/cursorKind.R`, which overwrites the correct one.
+
+I can fix this.
+
 ### Thu Nov 17 16:04:53 PST 2016
 
 Now I need to figure out what this translation unit can do.
