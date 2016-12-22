@@ -39,7 +39,24 @@ C++ConversionFunction.CXCursor_ConversionFunction
                                                26
 ```
 They all have this form of concatenated name, which appears to be intentional.
+Yet the variable `classMap` is only assigned in one place.
 
+Maybe this relies on name concatenation rules in R that I'm not aware
+of. Yes.
+```
+
+a = c("there" = 10)
+b = c("hello" = a)
+
+> b
+hello.there
+         10
+
+```
+
+Where do the class declarations happen? `CXCursor_Constructor` only shows
+up in the `a_enumDefs_3.x` and `cppClass.R` files. Yet I don't see
+`setClass` being used along with it.
 
 
 ### Wed Dec 21 16:30:25 PST 2016
@@ -51,6 +68,7 @@ Error in getClass(Class, where = topenv(parent.frame())) :
  “C++ClassConstructor.CXCursor_Constructor” is not a defined class
 ```
 So this class doesn't exist. But is the constructor the same as the class?
+This seems strange. Shouldn't
 
 Grep doesn't turn anything up in the directory.
 

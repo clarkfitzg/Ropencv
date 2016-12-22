@@ -11,6 +11,7 @@ tu = createTU(paste(d, "opencv2/core.hpp", sep = "/")
 r = getRoutines(tu)
 
 k = getCppClasses(tu)
+
 #Mon Nov 28 09:26:30 PST 2016
 #Error in getClass(Class, where = topenv(parent.frame())) :
   #“C++ClassConstructor.CXCursor_Constructor” is not a defined class
